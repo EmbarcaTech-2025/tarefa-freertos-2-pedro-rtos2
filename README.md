@@ -1,5 +1,6 @@
 
-# Tarefa: Roteiro de FreeRTOS #1 - EmbarcaTech 2025
+# Tarefa: Projeto Livre com RTOS - EmbarcaTech 2025
+# Sintetizador de Notas Musicais
 
 Autor: **Pedro Henrique Dias Avelar**
 
@@ -12,53 +13,37 @@ Brasília, Junho de 2025
 ---
 
 ## Objetivo
-O objetivo do presente projeto foi demonstrar o uso básico do FreeRTOS.
-Para isto foram criadas 4 tasks:
-* Oscilar o led RGB entre as cores vermelho, verde e azul
-* Ativar o buzzer a cada 2 segundos
-* Ler os botões A e B para ativar/desativar as duas tarefas anteriores
-* Exibir o status das tarefas, do led e do buzzer no display OLED
+O presente projeto visa utilizar a BitDogLab como um sintetizador de notas musicais.
+Cada um dos buzzers é utilizado para tocar uma sequencia de 16 diferentes notas musicais. O usuário consegue, por meio do joystick, dos botões A e B e do display OLED, verificar e alterar as duas sequências de notas.
+Para a execução foram criadas 4 tasks:
+* Display Task - Controla a exibição de dados no display OLED
+* Buzzer Task - Controla o acionamento dos dois buzzers da BitDogLab
+* Button Task - Controla a entrada de comandos pelos botões A, B e botão do joystick
+* Joystick Task - Controla a entrada de comandos pela movimentação do joystick
 
 ## Lista de periféricos utilizados
 
 |Periférico    | Conexão na BitDogLab|
 |--------------|---------------------|
 | Botões A e B | GP5 e GP6           |
+| Movimento do Joystick | GP27 (Eixo X) GP26 (Eixo Y)|
+|Botão do Joystick | GP22 |
 | Buzzers A e B| GP21 e GP10         |
-|LED RGB       | GP13(R),GP11(G),GP12(B)|
 |Display OLED  | GP14(SDA), GP15(SCL)|
 
 ## Lógica
 
-O código envolve a criação de 4 funções, display_task(), led_task(), buzzer_task() e button_task(), responsável por cada um dos quatro periféricos.
-* led_task(): Oscila o led RGB entre as cores vermelho, verde e azul a cada execução
-* buzzer_task(): Emite um beep de 250ms com os dois buzzers da BitDogLab e então espera 2 segundos antes de tocar novamente
-* button_task(): Faz a leitura dos botões A e B. O botão A faz alterar o estado de funcionamento do led RGB; já o botão B faz alternar o estado de funcionamento do buzzer.
-* display_task(): Exibe no display OLED qual led está aceso, se os buzzers estão ativados ou desativados e o estado das respectivas tarefas, se estão ativadas ou desativadas.
+Por meio do display OLED, são exibidas as duas sequências de notas a serem tocadas. Embaixo das sequências é exibido um cursor, o qual pode ser deslocado por meio do joystick. O acionamento dos botões A e B altera a nota indicada pelo cursor.
+Ao acionar o botão do joystick, inicia-se a reprodução das sequências de notas configuradas. Uma seta indica quais as notas sendo executadas no momento. Durante esta reprodução ainda é possível alterar as notas. A reprodução é executada apenas uma vez - a task de execução do buzzer é controlada por um semáforo binário,
+o qual é ativado com o acionamento do botão do joystick e desativado após o fim da reprodução. 
 
-Ao iniciar o programa, é mostrada uma tela de apresentação, e o programa inicia após detectar um acionamento de botão:
-![Imagem do WhatsApp de 2025-06-16 à(s) 00 05 41_57556ea9](https://github.com/user-attachments/assets/8dddc4d4-1ad9-43a3-b17e-ca4162ca867f)
+Na parte inferior do display são exibidas as funcionalidades dos botões A e B, e do botão do joystick, para facilitar o uso do usuário. Entendi não ser necessário apontar instruções para uso do joystick devido ao feedback visual do cursor.
 
-Após esse acionamento, o programa irá executar as tasks ativadas, exibindo no display OLED o status:
-![image](https://github.com/user-attachments/assets/aedac04f-b380-4e3a-99b0-464d9d923fd3)
+![Imagem do WhatsApp de 2025-06-29 à(s) 21 52 12_6295c2fa](https://github.com/user-attachments/assets/ea508122-4b86-4aa6-9a5f-bf4410e86fc4)
+Exibição do projeto em execução
 
-Video: https://www.youtube.com/shorts/j6pyCCiNvGw
+Video: [https://www.youtube.com/shorts/j6pyCCiNvGw](https://www.youtube.com/shorts/OB_qh6hD-wE)
 
-## Reflexões
-
-1)O que acontece se todas as tarefas tiverem a mesma prioridade?
-
-Manter as tarefas com a mesma prioridade poderia causar falhas de comunicação com o display OLED. Como o display é o periférico que mais consome CPU, foi dada a sua tarefa uma prioridade maior.
-Para a leitura dos botões, não foi observada uma necessidade de maior prioridade, mas isso pode mudar com o aumento da quantidade e complexidade de outras tarefas.
-
-2) Qual tarefa consome mais tempo da CPU?
-
-O display OLED e sua tarefa são os maiores consumidores de CPU
-
-3) Quais seriam os riscos de usar polling sem prioridades?
-
-O uso de polling sem prioridades poderia causar problemas na comunicação com o display OLED. Na primeira versão do programa, usando vTaskSuspend e vTaskResume, havia uma falha ao suspender a task
-do buzzer durante sua execução, causando uma toca ininterrupta do mesmo; ao alterar o programa para o uso de semáforos, este erro deixou de ocorrer.
 
 ---
 
